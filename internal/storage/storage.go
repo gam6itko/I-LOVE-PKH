@@ -10,6 +10,8 @@ type APIKeyStorage interface {
 	Get(ctx context.Context, name string) (token string, ok bool)
 }
 
+var _ APIKeyStorage = (*APIKeyENVStorage)(nil)
+
 type APIKeyENVStorage struct{}
 
 func (APIKeyENVStorage) Get(ctx context.Context, name string) (string, bool) {

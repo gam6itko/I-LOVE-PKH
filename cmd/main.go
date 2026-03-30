@@ -3,11 +3,12 @@ package main
 import (
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/gam6itko/grafana-webhook-to-telegram/internal/config"
 	"github.com/gam6itko/grafana-webhook-to-telegram/internal/handler"
 	"github.com/gam6itko/grafana-webhook-to-telegram/internal/storage"
 	"github.com/gam6itko/grafana-webhook-to-telegram/internal/telegram"
-	"go.uber.org/zap"
 )
 
 func main() {
@@ -18,10 +19,7 @@ func main() {
 	defer func() { _ = logger.Sync() }()
 
 	cfg := config.LoadFromEnv()
-	tgClient := &telegram.Client{
-		BaseURL: cfg.TelegramAPIHost,
-		HTTP:    http.DefaultClient,
-	}
+	tgClient := telegram.NewClient(telegram.WithBaseURL(cfg.TelegramAPIHost))
 	h := handler.NewWebhook(logger, storage.APIKeyENVStorage{}, tgClient)
 
 	mux := http.NewServeMux()

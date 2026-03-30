@@ -7,8 +7,9 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/gam6itko/grafana-webhook-to-telegram/internal/storage"
 	"go.uber.org/zap"
+
+	"github.com/gam6itko/grafana-webhook-to-telegram/internal/storage"
 )
 
 var botNamePattern = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
@@ -23,6 +24,10 @@ type GrafanaWebhook struct {
 	Status  string `json:"status"`
 }
 
+type errorResponse struct {
+	Error string `json:"error"`
+}
+
 type Webhook struct {
 	log    *zap.Logger
 	keys   storage.APIKeyStorage
@@ -31,10 +36,6 @@ type Webhook struct {
 
 func NewWebhook(log *zap.Logger, keys storage.APIKeyStorage, sender MessageSender) *Webhook {
 	return &Webhook{log: log, keys: keys, sender: sender}
-}
-
-type errorResponse struct {
-	Error string `json:"error"`
 }
 
 func (h *Webhook) ServeHTTP(w http.ResponseWriter, r *http.Request) {

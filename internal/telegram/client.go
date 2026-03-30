@@ -8,11 +8,27 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/gam6itko/grafana-webhook-to-telegram/internal/handler"
 )
 
+var _ handler.MessageSender = (*Client)(nil)
+
 type Client struct {
-	BaseURL string
-	HTTP    *http.Client
+	baseURL string
+	http    *http.Client
+}
+
+// NewClient returns a Client with optional configuration. Defaults: http.DefaultClient.
+func NewClient(opts ...Option) *Client {
+	c := &Client{
+		http:    http.DefaultClient,
+		baseURL: "https://api.telegram.org",
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
 
 type sendMessageBody struct {
@@ -26,10 +42,10 @@ type apiResponse struct {
 }
 
 func (c *Client) SendMessage(ctx context.Context, token, chatID, text string) error {
-	if c.HTTP == nil {
-		c.HTTP = http.DefaultClient
+	if c.http == nil {
+		c.http = http.DefaultClient
 	}
-	base := strings.TrimRight(c.BaseURL, "/")
+	base := strings.TrimRight(c.baseURL, "/")
 	url := fmt.Sprintf("%s/bot%s/sendMessage", base, token)
 
 	payload, err := json.Marshal(sendMessageBody{ChatID: chatID, Text: text})
@@ -43,7 +59,7 @@ func (c *Client) SendMessage(ctx context.Context, token, chatID, text string) er
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.HTTP.Do(req)
+	resp, err := c.http.Do(req)
 	if err != nil {
 		return err
 	}
