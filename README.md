@@ -8,6 +8,7 @@ Accepts a Grafana webhook and forwards the text to Telegram.
    - `BOT_API_KEY_<name>` — bot token from [@BotFather](https://t.me/BotFather). The name in the URL `/api/<name>/...` matches the variable suffix: for `mybot` use `BOT_API_KEY_MYBOT`; hyphens in the URL name become underscores in the variable name (`my-bot` → `BOT_API_KEY_MY_BOT`).
    - `HTTP_SERVER_LISTEN_ADDR` — listen address (Docker image defaults to `0.0.0.0:8080`).
    - `TELEGRAM_API_HOST` — usually `https://api.telegram.org` (optional to change).
+   - `HTTPS_PROXY="socks5h://user:pass@my-proxy:1080"` — optional.
 
 2. Grafana **Contact point** (HTTP) URL:
 
