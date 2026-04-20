@@ -28,9 +28,16 @@ func main() {
 	tgClient := telegram.NewClient(telegram.WithBaseURL(cfg.TelegramAPIHost))
 	h := handler.NewWebhook(logger, storage.APIKeyENVStorage{}, tgClient)
 
+	tgProxy, err := handler.NewTelegramProxy(cfg.TelegramAPIHost)
+	if err != nil {
+		logger.Fatal("telegram proxy", zap.Error(err))
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /api/{bot_name}/{chat_id}", h.ServeHTTP)
 	mux.HandleFunc("PUT /api/{bot_name}/{chat_id}", h.ServeHTTP)
+	mux.HandleFunc("GET /tg/", tgProxy.ServeHTTP)
+	mux.HandleFunc("POST /tg/", tgProxy.ServeHTTP)
 
 	logger.Info("server starting", zap.String("addr", cfg.ListenAddr))
 	if err := http.ListenAndServe(cfg.ListenAddr, mux); err != nil {
