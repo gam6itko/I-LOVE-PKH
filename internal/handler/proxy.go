@@ -24,7 +24,11 @@ func NewTelegramProxy(log *zap.Logger, baseURL string) (http.Handler, error) {
 	if err != nil {
 		return nil, err
 	}
-	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy := &httputil.ReverseProxy{
+		Rewrite: func(r *httputil.ProxyRequest) {
+			r.SetURL(target)
+		},
+	}
 	inner := http.StripPrefix("/tg", proxy)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
